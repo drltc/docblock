@@ -25,3 +25,14 @@ This was tested with the following test network version:
 
 It has not been tested on live network data yet.
 
+Files
+-----
+
+- `README.md` is this cruft
+- `chain.py` parses the blockchain from a chainserver (currently must be running on `localhost:11235`)
+- `notes.md` is my (drltc's) raw notes from looking at the code
+- `questions.md` is questions for more knowledgeable developers
+- `block.md` is the actual documentation
+- `dump2bin.py` converts the server side of a `socat` dump to binary
+- `nctest.sh` respawns `nc` in a `while` loop.  It makes the server side of the conversation reproducible and suppresses the client side entirely.
+
