@@ -7,18 +7,18 @@
 
 1. How is vector serialized?  Answer:
 
-Apparently uses the following implementation in fc/io/raw.hpp
+Apparently uses the following implementation in `fc/io/raw.hpp`
 
-template<typename Stream, typename T> inline void pack( Stream& s, const std::vector<T>& value )
-template<typename Stream> inline void pack( Stream& s, const unsigned_int& v )
+    template<typename Stream, typename T> inline void pack( Stream& s, const std::vector<T>& value )
+    template<typename Stream> inline void pack( Stream& s, const unsigned_int& v )
 
 but I can't really find where this is "attached" to serialization.
 
 2. Has anyone tried compiling on big-endian architecture?
 
-3. Where is serialization of optional<whatever> implmented?
+3. Where is serialization of `optional<whatever>` implmented?
 
-inline void pack( Stream& s, const fc::optional<T>& v )
+    inline void pack( Stream& s, const fc::optional<T>& v )
 
 which appears to output bool (one byte) followed by T.
 
@@ -29,6 +29,4 @@ client should be able to communicate with a 64-bit chainserver and vice versa.
 
 6. How does optional serialization deal with flag byte that is not 0 or 1?  We should add checks so other values of flag byte are reserved
 and cause block to be rejected as malformed.
-
-
 
