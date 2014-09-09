@@ -1,9 +1,9 @@
 
-Bitcoin: 1NfGejohzoVGffAD1CnCRgo9vApjCU2viY
-Litecoin: LiUGs9sqH6GBHsvzpNtLCoyXB5aCDi9HsQ
-Dogecoin: DTy5q7uUQ1whqyUrwC1LbhgqwKgovJT5R7
-Protoshares (BitShares-PTS): PZxpdC8RqWsdU3pVJeobZY7JFKVPfNpy5z
-BTSX: drltc
+- Bitcoin: 1NfGejohzoVGffAD1CnCRgo9vApjCU2viY
+- Litecoin: LiUGs9sqH6GBHsvzpNtLCoyXB5aCDi9HsQ
+- Dogecoin: DTy5q7uUQ1whqyUrwC1LbhgqwKgovJT5R7
+- Protoshares (BitShares-PTS): PZxpdC8RqWsdU3pVJeobZY7JFKVPfNpy5z
+- BTSX: drltc
 
 This is a specification of the BitShares toolkit blockchain.  This is a work-in-progress.  The principal author is `drltc`.
 Development can be followed in this forum thread:  https://bitsharestalk.org/index.php?topic=1738.0
