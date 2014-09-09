@@ -7,20 +7,24 @@
 
 1. How is vector serialized?  Answer:
 
-Apparently uses the following implementation in `fc/io/raw.hpp`
+    Apparently uses the following implementation in `fc/io/raw.hpp`
 
-    template<typename Stream, typename T> inline void pack( Stream& s, const std::vector<T>& value )
-    template<typename Stream> inline void pack( Stream& s, const unsigned_int& v )
+    ```
+        template<typename Stream, typename T> inline void pack( Stream& s, const std::vector<T>& value )
+        template<typename Stream> inline void pack( Stream& s, const unsigned_int& v )
+    ```
 
-but I can't really find where this is "attached" to serialization.
+    but I can't really find where this is "attached" to serialization.
 
 2. Has anyone tried compiling on big-endian architecture?
 
 3. Where is serialization of `optional<whatever>` implmented?
 
-    inline void pack( Stream& s, const fc::optional<T>& v )
+    ```
+        inline void pack( Stream& s, const fc::optional<T>& v )
+    ```
 
-which appears to output bool (one byte) followed by T.
+    which appears to output bool (one byte) followed by T.
 
 4. Where is it specified that `enum chain_server_commands` will transmit on the wire as `uint64_t` ?  Or am I missing another 32-bit field?
 
