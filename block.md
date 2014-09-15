@@ -53,6 +53,12 @@ have its `previous` member refer to some valid block, say `A`; then we say that 
 form a tree rooted at the genesis block.  The current blockchain is the longest path through this tree; if more than one such path
 exists, the blockchain is said to have **forked**.
 
+The global database
+-------------------
+
+The blockchain is a log of the updates to the state shared by all nodes.  This shared state contains information on
+everyone's accounts, coins, etc.  This spec will refer to that shared state as the **global database**.
+
 Block headers
 -------------
 
@@ -90,17 +96,20 @@ contain a block.
 
 TODO:  How is a missing block handled?
 
-Genesis block
+Genesis state
 -------------
 
-The first block in the blockchain is called the **genesis block**.  The genesis block is specified as `genesis.json`; the contents of this
-block are hardcoded in the client.  (TODO:  Where, and how is the file generated?)  To comply with the license agreement, the `genesis.json`
-for coins derived from the BitShares Toolkit code MUST have at least 10% of its genesis block reserved for proportional allocations for PTS
-and AGS holders.
+In traditional cryptocoins such as Bitcoin, the first block in the blockchain is called the **genesis block**.  In BitShares X, the initial contents
+of the global database are specified in `genesis.json` which is copied directly into the client executable by build scripts.  Some people refer to
+the `genesis.json` data as the "genesis block" of a BitShares Toolkit blockchain.  However, for the purposes of this spec, the term
+**genesis state** is preferred.
+
+(TODO:  Where, and how is `genesis.json` generated?)
+
+To comply with the license agreement, the `genesis.json` for coins derived from the BitShares Toolkit code MUST have at least 10% of its genesis
+block reserved for proportional allocations for PTS and AGS holders.
 
 TODO:  Link to license restriction.
-
-TODO:  What kinds of transactions are included in genesis block?
 
 Signatures
 ----------
