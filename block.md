@@ -53,12 +53,6 @@ have its `previous` member refer to some valid block, say `A`; then we say that 
 form a tree rooted at the genesis block.  The current blockchain is the longest path through this tree; if more than one such path
 exists, the blockchain is said to have **forked**.
 
-The global database
--------------------
-
-The blockchain is a log of the updates to the state shared by all nodes.  This shared state contains information on
-everyone's accounts, coins, etc.  This spec will refer to that shared state as the **global database**.
-
 Block headers
 -------------
 
@@ -79,6 +73,155 @@ The `block_num` member is the height of the block.  The genesis block SHOULD hav
 
 The `timestamp` field specifies the time at which the block is generated.  The `timestamp` member of a block MUST be greater than the `timestamp`
 member of its parent (TODO:  Plus interval?).  (TODO:  How do we check timestamp member against system clock?)
+
+Signed blocks
+-------------
+
+A **signed block** is a block which contains a delegate signature.  The signature algorithm is OpenSSL ECDSA.  The delegate signature
+is considered to be part of the signed block's header, thus we have the following declaration:
+
+   struct signed_block_header : public block_header
+   {
+       signature_type delegate_signature;
+   };
+
+Transaction lists
+-----------------
+
+A **transaction** is an atomic update to the global database state.  Each block contains zero or more transactions.  Thus we have
+the following structure for a `full_block`:
+
+   struct full_block : public signed_block_header
+   {
+       signed_transactions  user_transactions;
+   };
+
+The `full_block` is used in bulk downloads such as provided by the built-in chain server.  In the peer-to-peer code, when
+a recipient can be expected to often already have some or all of the transactions in a block, we can save some
+bandwidth by only transmitting the digests of transactions:
+
+   struct digest_block : public signed_block_header
+   {
+       std::vector<transaction_id_type> user_transaction_ids;
+   };
+
+Of course, when receiving a `digest_block`, a validating node MUST obtain `user_transactions` to reconstruct the
+`full_block` to perform validation.  This MAY be implemented by querying a local store of known pending transactions,
+and then requesting unknown transactions from peers.
+
+Transactions
+------------
+
+The transaction format consists of an expiration date, an optional `delegate_slate_id`, and zero or more `operation` objects:
+
+   struct transaction
+   {
+      fc::time_point_sec          expiration;
+      optional<slate_id_type>     delegate_slate_id;
+      vector<operation>           operations;
+   };
+
+On-the-wire format
+------------------
+
+The following is a concise pseudocode description of the on-the-wire format of data structures.
+A `vluint` is a variable-length unsigned integer, encoded in little-endian byte order using 7 bits
+per byte; the most significant bit of each byte except the last is 1.  Integer data types are
+little-endian.
+
+Some elements are defined as types whose length can be changed by modifying `types.h` or
+the `fc` library are noted in comments.  Derivative blockchains SHOULD NOT change the length
+of fields.
+
+    struct wire_operation
+    {
+        byte type;
+        vluint num_data_bytes;
+        byte data[num_data_bytes];
+    };
+
+    struct wire_signed_transaction
+    {
+        uint32 expiration;                      /* fc::time_point_sec */
+        byte has_delegate_slate;
+        uint64_t delegate_slate_id;             /* slate_id_type */
+        vluint num_operations;
+        wire_operation[num_operations] operations;
+    };
+
+    struct wire_block
+    {
+        // header
+        byte[20] previous;                      /* block_id_type */
+        uint32 block_num;
+        uint32 timestamp;                       /* fc::time_point_sec */
+        byte[20] transaction_digest;            /* digest_type */
+        byte[20] next_secret_hash;              /* secret_hash_type */
+        byte[20] previous_secret;               /* secret_hash_type */
+
+        // body
+        byte[65] delegate_signature;            /* fc::ecc::compact_signature */
+
+        // transaction count
+        vluint num_transactions;
+        wire_signed_transaction[num_transactions] signed_transactions;
+    };
+
+Operations
+----------
+
+A transaction consists of zero or more **operations**.  An operation
+contains some data, 
+
+    enum operation_type_enum
+    {
+        null_op_type                = 0,
+
+        /** balance operations */
+        withdraw_op_type            = 1,
+        deposit_op_type             = 2,
+
+        /** account operations */
+        register_account_op_type    = 3,
+        update_account_op_type      = 4,
+        withdraw_pay_op_type        = 5,
+
+        /** asset operations */
+        create_asset_op_type        = 6,
+        update_asset_op_type        = 7,
+        issue_asset_op_type         = 8,
+
+        /** delegate operations */
+        fire_delegate_op_type       = 9,
+
+        /** proposal operations */
+        submit_proposal_op_type     = 10,
+        vote_proposal_op_type       = 11,
+
+        /** market operations */
+        bid_op_type                 = 12,
+        ask_op_type                 = 13,
+        short_op_type               = 14,
+        cover_op_type               = 15,
+        add_collateral_op_type      = 16,
+        remove_collateral_op_type   = 17,
+
+        define_delegate_slate_op_type = 18,
+
+        update_feed_op_type          = 19
+    };
+
+Block identifiers
+-----------------
+
+The **block id** or **block identifier** of a signed block is a unique identifier derived from hashing the signed block's
+header.  Specifically, the block identifier is computed the RIPEMD-160 digest of the SHA-512 hash of the signed block header.
+
+The global database
+-------------------
+
+The blockchain is a log of the updates to the state shared by all nodes.  This shared state contains information on
+everyone's accounts, coins, etc.  This spec will refer to that shared state as the **global database**.
 
 Delegates
 ---------
@@ -110,19 +253,4 @@ To comply with the license agreement, the `genesis.json` for coins derived from 
 block reserved for proportional allocations for PTS and AGS holders.
 
 TODO:  Link to license restriction.
-
-Signatures
-----------
-
-TODO:  How are signatures computed and validated?
-
-Hashes
-------
-
-TODO:  How are block hashes computed?
-
-Operations
-----------
-
-TODO:  What are the operations?  How do they work?
 
